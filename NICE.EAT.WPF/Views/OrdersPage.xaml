@@ -1,0 +1,99 @@
+<Page x:Class="NICE.EAT.WPF.Views.OrdersPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BgDeepBrush}"
+      Title="My Orders">
+
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="📋 Order History" Style="{StaticResource HeadingText}" />
+            <TextBlock Text="Your past orders and favorite spot"
+                       Style="{StaticResource SubText}" Margin="0,4,0,0" />
+        </StackPanel>
+
+        <!-- Favorite Restaurant card -->
+        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="🏆 Favorite Restaurant" FontWeight="SemiBold" />
+                    <TextBlock x:Name="FavText"
+                               Style="{StaticResource SubText}"
+                               Text="Loading…" Margin="0,4,0,0" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="↻ Refresh"
+                        Style="{StaticResource GhostButton}"
+                        VerticalAlignment="Center"
+                        Click="BtnRefresh_Click" />
+            </Grid>
+        </Border>
+
+        <!-- Orders list -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock x:Name="EmptyMsg"
+                           Text="No orders yet. Go place your first one!"
+                           Style="{StaticResource SubText}"
+                           Visibility="Collapsed"
+                           HorizontalAlignment="Center" Margin="0,40" />
+
+                <ItemsControl x:Name="OrdersList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Order type icon -->
+                                    <TextBlock Grid.Column="0" Text="{Binding TypeIcon}"
+                                               FontSize="24" VerticalAlignment="Center"
+                                               Margin="0,0,14,0" />
+
+                                    <!-- Details -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding MenuItemName}"
+                                                   FontWeight="SemiBold" FontSize="15" />
+                                        <TextBlock Text="{Binding RestaurantName}"
+                                                   Style="{StaticResource SubText}" />
+                                        <TextBlock Text="{Binding ExtraInfo}"
+                                                   Style="{StaticResource SubText}"
+                                                   Visibility="{Binding ExtraInfoVisible}" />
+                                        <TextBlock Text="{Binding Note}"
+                                                   Foreground="{StaticResource AccentLightBrush}"
+                                                   FontSize="12" Margin="0,2,0,0"
+                                                   Visibility="{Binding NoteVisible}" />
+                                    </StackPanel>
+
+                                    <!-- Price + date -->
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding TotalDisplay}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource AccentBrush}"
+                                                   HorizontalAlignment="Right" />
+                                        <TextBlock Text="{Binding DateDisplay}"
+                                                   Style="{StaticResource SubText}"
+                                                   HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

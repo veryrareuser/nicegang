@@ -1,0 +1,195 @@
+# NICE.EAT — OOP Requirement Mapping
+
+**Build: ✅ 0 errors, 0 warnings**
+
+---
+
+## Class Diagram
+
+```mermaid
+classDiagram
+    BaseEntity <|-- MenuItem
+    BaseEntity <|-- Restaurant
+    BaseEntity <|-- User
+    BaseEntity <|-- Order
+    MenuItem <|-- FoodItem
+    MenuItem <|-- DrinkItem
+    User <|-- PremiumUser
+    Order <|-- DeliveryOrder
+    BaseService <|-- RecommendationService
+    BaseService <|-- OrderService
+    BaseService <|-- PopularityService
+    BaseService <|-- WaitTimeService
+    IRecommendable <|.. Restaurant
+    IRecommendable <|.. FoodItem
+    IFilterStrategy <|.. BudgetFilter
+    IFilterStrategy <|.. MoodFilter
+    IFilterStrategy <|.. SpicyFilter
+    IFilterStrategy <|.. VeganFilter
+    Restaurant o-- MenuItem : has many
+    User o-- Order : has many
+    Order o-- User : has a
+    Order o-- MenuItem : has a
+    Order o-- Restaurant : has a
+```
+
+---
+
+## Req 1 — Minimum 5 Parent Classes ✅
+
+| # | Parent Class | Children | File |
+|---|---|---|---|
+| 1 | [BaseEntity](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/BaseEntity.cs#7-26) (abstract) | MenuItem, Restaurant, User, Order | [BaseEntity.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/BaseEntity.cs) |
+| 2 | [MenuItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/MenuItem.cs#9-37) (abstract) | FoodItem, DrinkItem | [MenuItem.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/MenuItem.cs) |
+| 3 | [User](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs#10-41) | PremiumUser | [User.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs) |
+| 4 | [Order](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs#10-50) | DeliveryOrder | [Order.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs) |
+| 5 | [BaseService](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/BaseService.cs#7-34) (abstract) | RecommendationService, OrderService, PopularityService, WaitTimeService | [BaseService.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/BaseService.cs) |
+
+---
+
+## Req 2 — 3-Level Inheritance ✅
+
+```
+BaseEntity → MenuItem → FoodItem
+BaseEntity → MenuItem → DrinkItem
+```
+
+| Level | Class | File |
+|---|---|---|
+| 1 (root) | [BaseEntity](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/BaseEntity.cs#7-26) | [BaseEntity.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/BaseEntity.cs) |
+| 2 (middle) | [MenuItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/MenuItem.cs#9-37) (abstract) | [MenuItem.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/MenuItem.cs) |
+| 3 (leaf) | [FoodItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs#10-42) | [FoodItem.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs) |
+| 3 (leaf) | [DrinkItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DrinkItem.cs#7-26) | [DrinkItem.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DrinkItem.cs) |
+
+**DB mapping**: `menu_items.item_type` column (`'Food'` or `'Drink'`) is the discriminator. [MenuItemRepository.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Data/MenuItemRepository.cs) MapMenuItem() factory produces the correct subclass.
+
+---
+
+## Req 3 — 2-Level Inheritance (×2) ✅
+
+**Chain A**: `User → PremiumUser`
+
+| Class | File |
+|---|---|
+| [User](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs#10-41) | [User.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs) |
+| [PremiumUser](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/PremiumUser.cs#8-40) | [PremiumUser.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/PremiumUser.cs) |
+
+**DB mapping**: `users.user_type` discriminator (`'Basic'` or `'Premium'`), plus `loyalty_points`, `discount_rate` columns.
+
+**Chain B**: `Order → DeliveryOrder`
+
+| Class | File |
+|---|---|
+| [Order](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs#10-50) | [Order.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs) |
+| [DeliveryOrder](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DeliveryOrder.cs#8-32) | [DeliveryOrder.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DeliveryOrder.cs) |
+
+**DB mapping**: `orders.order_type` discriminator (`'DineIn'` or `'Delivery'`), plus `delivery_address`, `delivery_fee` columns.
+
+---
+
+## Req 4 — 2 Interfaces (≥2 implementations each, actively used) ✅
+
+### Interface 1: [IRecommendable](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Interfaces/IRecommendable.cs#9-20)
+
+| Implementation | File | Where Used |
+|---|---|---|
+| [Restaurant](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs#11-59) | [Restaurant.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs) | [Program.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Program.cs) HandleRecommendation() — calls [GetDisplayInfo()](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs#43-48) and [GetRecommendationScore()](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs#49-56) |
+| [FoodItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs#10-42) | [FoodItem.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs) | `RecommendationService.PrintRecommendationScores()` and [Program.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Program.cs) OOP Demo |
+
+Defined in: [IRecommendable.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Interfaces/IRecommendable.cs)
+
+### Interface 2: [IFilterStrategy](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Interfaces/IFilterStrategy.cs#10-20)
+
+| Implementation | File | Where Used |
+|---|---|---|
+| [BudgetFilter](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/BudgetFilter.cs#9-26) | [BudgetFilter.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/BudgetFilter.cs) | `RecommendationService.GetRecommendations()` |
+| [MoodFilter](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/MoodFilter.cs#10-34) | [MoodFilter.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/MoodFilter.cs) | `RecommendationService.GetRecommendations()` |
+| [SpicyFilter](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/SpicyFilter.cs#15-19) | [SpicyFilter.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/SpicyFilter.cs) | `RecommendationService.GetRecommendations()` |
+| [VeganFilter](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/VeganFilter.cs#9-19) | [VeganFilter.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/VeganFilter.cs) | `RecommendationService.GetRecommendations()` |
+
+Defined in: [IFilterStrategy.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Interfaces/IFilterStrategy.cs)
+
+**Active usage in** [RecommendationService.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/RecommendationService.cs): `foreach (IFilterStrategy filter in _filters) { restaurants = filter.Filter(restaurants); }`
+
+---
+
+## Req 5 — Composition & Collection ✅
+
+| Relation | Owner | Owned | Type | File |
+|---|---|---|---|---|
+| **Has-Many** | [Restaurant](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs#11-59) | `List<MenuItem> Menu` | Collection | [Restaurant.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs) |
+| **Has-Many** | [User](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs#10-41) | `List<Order> OrderHistory` | Collection | [User.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs) |
+| **Has-A** | [Order](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs#10-50) | `User? OrderedBy` | Reference | [Order.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs) |
+| **Has-A** | [Order](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs#10-50) | `MenuItem? OrderedItem` | Reference | [Order.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs) |
+| **Has-A** | [Order](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs#10-50) | `Restaurant? OrderedAtRestaurant` | Reference | [Order.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Order.cs) |
+| **Has-Many** | [RecommendationService](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/RecommendationService.cs#21-31) | `List<IFilterStrategy> _filters` | Collection | [RecommendationService.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/RecommendationService.cs) |
+
+---
+
+## Req 6 — Polymorphism Demonstration ✅
+
+| Polymorphism Type | Where | What Happens |
+|---|---|---|
+| **Interface** (IFilterStrategy) | [RecommendationService.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/RecommendationService.cs) [GetRecommendations()](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/RecommendationService.cs#42-73) | 4 different filter classes called through same [Filter()](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/Filters/VeganFilter.cs#13-18) interface |
+| **Interface** (IRecommendable) | [Program.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Program.cs) `HandlePolymorphismDemo()` | [Restaurant](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/Restaurant.cs#11-59) and [FoodItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs#10-42) scored/displayed through same interface |
+| **Override** MenuItem.GetDescription() | Every menu display in Program.cs | [FoodItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/FoodItem.cs#10-42) shows portion size; [DrinkItem](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DrinkItem.cs#7-26) shows temperature + volume |
+| **Override** User.CalculateOrderPrice() | [OrderService.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/OrderService.cs) [PlaceOrder()](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Services/OrderService.cs#23-50) | [PremiumUser](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/PremiumUser.cs#8-40) applies 10% discount; base [User](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/User.cs#10-41) pays full |
+| **Override** Order.GetTotalPrice() | [Program.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Program.cs) `HandleOrderHistory()` | [DeliveryOrder](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Models/DeliveryOrder.cs#8-32) adds delivery fee to base price |
+
+**Dedicated demo**: Menu option **[6] OOP Polymorphism Demo** in Program.cs explicitly demonstrates all 4 polymorphism types with side-by-side comparisons.
+
+---
+
+## Req 7 — No Logic in UI ✅
+
+| Component | Responsibility |
+|---|---|
+| [Program.cs](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Program.cs) | Console I/O only (read input, print output) |
+| `Services/` | All business logic (filtering, pricing, ordering, popularity) |
+| `Models/` | Domain logic (GetDescription, CalculateOrderPrice, GetTotalPrice) |
+| [Data/](file:///d:/Carlos/kuliah/OOP/NICE.EAT/Data/DatabaseHelper.cs#9-37) | Database access (parameterized queries, factory mapping) |
+| `Utilities/` | I/O helpers + mood mapping |
+
+---
+
+## File Tree (Final)
+
+```
+NICE.EAT/
+├── Interfaces/
+│   ├── IRecommendable.cs         ← Interface #1
+│   └── IFilterStrategy.cs        ← Interface #2
+├── Models/
+│   ├── BaseEntity.cs             ← Parent #1 (abstract)
+│   ├── MenuItem.cs               ← Parent #2 (abstract, extends BaseEntity)
+│   ├── FoodItem.cs               ← Level 3 (extends MenuItem, impl IRecommendable)
+│   ├── DrinkItem.cs              ← Level 3 (extends MenuItem)
+│   ├── Restaurant.cs             ← extends BaseEntity, impl IRecommendable
+│   ├── User.cs                   ← Parent #3 (extends BaseEntity)
+│   ├── PremiumUser.cs            ← extends User
+│   ├── Order.cs                  ← Parent #4 (extends BaseEntity)
+│   └── DeliveryOrder.cs          ← extends Order
+├── Data/
+│   ├── DatabaseHelper.cs
+│   ├── RestaurantRepository.cs
+│   ├── MenuItemRepository.cs     ← factory: FoodItem/DrinkItem
+│   ├── UserRepository.cs         ← factory: User/PremiumUser
+│   └── OrderRepository.cs        ← factory: Order/DeliveryOrder
+├── Services/
+│   ├── BaseService.cs            ← Parent #5 (abstract)
+│   ├── RecommendationService.cs  ← extends BaseService, uses IFilterStrategy
+│   ├── OrderService.cs           ← extends BaseService
+│   ├── PopularityService.cs      ← extends BaseService
+│   ├── WaitTimeService.cs        ← extends BaseService
+│   └── Filters/
+│       ├── BudgetFilter.cs       ← impl IFilterStrategy
+│       ├── MoodFilter.cs         ← impl IFilterStrategy
+│       ├── SpicyFilter.cs        ← impl IFilterStrategy
+│       └── VeganFilter.cs        ← impl IFilterStrategy
+├── Utilities/
+│   ├── ConsoleHelper.cs
+│   └── MoodMapper.cs
+├── Program.cs                    ← I/O only, no business logic
+├── appsettings.json
+└── schema.sql                    ← DB with discriminator columns
+```
