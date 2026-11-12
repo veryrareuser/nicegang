@@ -18,6 +18,11 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- The seeded SQLite database is committed for collaboration — copy it next to
+         the executable so the app finds "Data Source=niceeat.db" on first run. -->
+    <None Update="niceeat.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
